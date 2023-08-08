@@ -1,0 +1,105 @@
+const express = require("express");
+const nodeHtmlToImage = require("node-html-to-image");
+const app = express();
+
+app.use("/public", express.static("public"));
+
+app.get("/generateCertificate", async (req, res) => {
+  // Extract parameters from the query string
+  const { name, day, month, year, training_name } = req.query;
+
+  function getMonth(monthNumber) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    // Subtract 1 from the month number since JavaScript Date months are zero-indexed
+    const adjustedMonthNumber = monthNumber - 1;
+
+    if (adjustedMonthNumber >= 0 && adjustedMonthNumber < 12) {
+      return months[adjustedMonthNumber];
+    } else {
+      return "Invalid month number";
+    }
+  }
+
+  // Generate the HTML content for the certificate
+  const html = `
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap");
+    </style>
+  </head>
+  <body
+    class="p-16 flex flex-col"
+    style="
+      width: 1040px;
+      height: 800px;
+      background-image: url('http://localhost:3000/public/template.png');
+      background-repeat: no-repeat;
+    "
+  >
+    <div class="flex flex-row items-center">
+      <img src="http://localhost:3000/public/logo.svg" class="h-48 w-48" />
+      <div class="grow"></div>
+      <h1 class="text-right text-6xl">Certificate of<br /><b>Completion</b></h1>
+    </div>
+    <div class="grow"></div>
+    <div class="flex flex-row">
+      <div class="grow"></div>
+      <p
+        style="font-family: 'Kaushan Script', cursive"
+        class="w-2/3 text-6xl text-right"
+      >
+        ${name}
+      </p>
+    </div>
+    <div class="flex flex-row">
+      <div class="grow"></div>
+      <div class="text-right w-2/3 text-xl">
+        This is to certify that the VT Ready volunteer, whose name appears
+        above, has successfully completed the training program
+        <div class="my-4">
+          <b class="text-4xl w-2/3">${training_name}</b>
+        </div>
+        on this <b>${day}</b> day of <b>${getMonth(month)}</b>, <b>${year}</b>.
+      </div>
+    </div>
+    <div class="h-32"></div>
+    <p class="text-right">VT Ready</p>
+  </body>
+</html>
+
+  `;
+
+  const image = await nodeHtmlToImage({
+    html: html,
+  });
+  res.writeHead(200, { "Content-Type": "image/png" });
+  res.end(image, "binary");
+  // Set the response content type to HTML
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log("Server started on port 3000");
+});
+
+module.exports = app;
+
+// index.js

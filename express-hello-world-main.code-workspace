@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "express-hello-world-main",
+		"path": "."
+	},
+	{
+		"name": "public",
+		"path": "../../../Documents/vt_ready_certificate_server/public"
+	}
+],
+  "settings": {}
+}
